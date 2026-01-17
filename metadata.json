@@ -1,0 +1,7 @@
+{
+  "name": "Subhag Embrion",
+  "description": "A world-class, AI-powered embryo assessment and management platform for fertility clinics, featuring Gardner grading, morphokinetic analysis, and comprehensive cohort dashboards.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
