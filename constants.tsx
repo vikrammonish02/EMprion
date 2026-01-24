@@ -17,51 +17,9 @@ export const COLORS = {
   neutral: '#9CA3AF'
 };
 
-export const MOCK_PATIENTS: Patient[] = [
-  {
-    id: 'p1',
-    displayId: 'SUB-PATIENT-24091',
-    husbandName: 'John Doe',
-    wifeName: 'Jane Doe',
-    husbandAge: 34,
-    wifeAge: 32,
-    clinicId: 'c1'
-  }
-];
-
-export const MOCK_CYCLES: Cycle[] = [
-  {
-    id: 'cyc1',
-    displayId: 'CYC-2026-001',
-    patientId: 'p1',
-    status: CycleStatus.ASSESSMENT,
-    eggRetrievalDate: '2026-01-15',
-    embryoCount: 15
-  }
-];
-
-export const MOCK_EMBRYOS: Embryo[] = Array.from({ length: 15 }, (_, i) => ({
-  id: `e${i + 1}`,
-  displayId: `EMB-24091-E${(i + 1).toString().padStart(2, '0')}`,
-  cycleId: 'cyc1',
-  gardner: {
-    expansion: Math.floor(Math.random() * 5) + 1,
-    icm: ['A', 'B', 'C'][Math.floor(Math.random() * 3)] as any,
-    te: ['A', 'B', 'C'][Math.floor(Math.random() * 3)] as any
-  },
-  morpho: {
-    t2: 28.5 + (Math.random() * 2 - 1),
-    t3: 37.0 + (Math.random() * 4 - 2),
-    t5: 45.0 + (Math.random() * 5 - 2.5),
-    t8: 68.0 + (Math.random() * 10 - 5),
-    tEB: 110.0 + (Math.random() * 10 - 5),
-    s3: 3.2 + Math.random() * 2
-  },
-  viabilityIndex: Math.floor(Math.random() * 40) + 50,
-  confidence: 85 + Math.random() * 14,
-  // Added type assertion to fix the status type mismatch
-  status: (i < 12 ? 'COMPLETED' : 'PENDING') as 'COMPLETED' | 'PENDING'
-})).sort((a, b) => b.viabilityIndex - a.viabilityIndex);
+export const MOCK_PATIENTS: Patient[] = [];
+export const MOCK_CYCLES: Cycle[] = [];
+export const MOCK_EMBRYOS: Embryo[] = [];
 
 export const ICONS = {
   Dashboard: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,

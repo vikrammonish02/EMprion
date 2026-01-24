@@ -15,14 +15,8 @@ const Sidebar: React.FC = () => {
   return (
     <aside className="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
       <div className="p-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#1B7B6A] rounded-lg flex items-center justify-center text-white font-bold text-xl">
-            S
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-[#1B7B6A] leading-tight">SUBHAG</h1>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Embrion AI</p>
-          </div>
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt="Subhag Logo" className="h-10 object-contain" />
         </div>
       </div>
 
