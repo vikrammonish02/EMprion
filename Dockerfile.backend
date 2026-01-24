@@ -15,11 +15,6 @@ RUN pip install --no-cache-dir transformers pillow
 # Copy application code
 COPY embryo_ai/ ./embryo_ai/
 
-# Pre-download CLIP model (cached in volume)
-RUN python -c "from transformers import CLIPProcessor, CLIPModel; \
-    CLIPModel.from_pretrained('openai/clip-vit-base-patch32'); \
-    CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32')"
-
 WORKDIR /app/embryo_ai
 
 # Start application
