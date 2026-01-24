@@ -1,7 +1,7 @@
 # Subhag EMBRION - Backend Dockerfile
 # AI inference server with PyTorch and CLIP
 
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
