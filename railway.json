@@ -5,7 +5,7 @@
         "dockerfilePath": "Dockerfile.backend"
     },
     "deploy": {
-        "startCommand": "cd /app/embryo_ai && python download_models.py && python main.py",
+        "startCommand": "python download_models.py && python main.py",
         "restartPolicyType": "ON_FAILURE",
         "restartPolicyMaxRetries": 10
     }
