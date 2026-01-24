@@ -1,0 +1,38 @@
+# Subhag EMBRION - Docker Compose Configuration
+# Production deployment with all services
+
+version: '3.8'
+
+services:
+  # AI Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./embryo_ai:/app/embryo_ai
+      - model_cache:/root/.cache/huggingface  # Cache CLIP model
+    environment:
+      - ALLOW_SIMULATION=False
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Frontend Web App
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  model_cache:

@@ -1,0 +1,33 @@
+# Subhag EMBRION - Backend Dockerfile
+# AI inference server with PyTorch and CLIP
+
+FROM python:3.11-slim
+
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Python dependencies
+COPY embryo_ai/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir transformers pillow
+
+# Copy application code
+COPY embryo_ai/ ./embryo_ai/
+
+# Pre-download CLIP model (cached in volume)
+RUN python -c "from transformers import CLIPProcessor, CLIPModel; \
+    CLIPModel.from_pretrained('openai/clip-vit-base-patch32'); \
+    CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32')"
+
+WORKDIR /app/embryo_ai
+
+EXPOSE 8000
+
+CMD ["python", "main.py"]
