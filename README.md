@@ -49,7 +49,7 @@ cd EMprion
 ### 2. Download AI Model Weights
 The trained model weights (~1.5GB) are hosted externally due to size limits.
 
-**Download from**: [Google Drive / Hugging Face Link - Contact maintainer]
+**Download from**: [Hugging Face Models (vikramsona02/EMprion-models)](https://huggingface.co/vikramsona02/EMprion-models)
 
 ```bash
 # After downloading, place weights in embryo_ai/

@@ -18,7 +18,7 @@ export interface AnalysisResult {
     analysis_type: string;
 }
 
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 export const analyzeEmbryo = async (
     file: File,

@@ -13,16 +13,18 @@ import sys
 import urllib.request
 import hashlib
 
-# Configuration - Update these URLs with actual hosted locations
+# Configuration
+BASE_URL = "https://huggingface.co/vikramsona02/EMprion-models/resolve/main"
+
 MODEL_URLS = {
     "gardner_net_best.pth": {
-        "url": "CONTACT_MAINTAINER_FOR_ACCESS",
-        "size_mb": 60,
+        "url": f"{BASE_URL}/gardner_net_best.pth",
+        "size_mb": 46.9,
         "description": "Gardner Grading Model (ResNet-18)"
     },
     "modelres18LSTM_bs16_trlen10_cv3_best_epoch18": {
-        "url": "CONTACT_MAINTAINER_FOR_ACCESS",
-        "size_mb": 200,
+        "url": f"{BASE_URL}/modelres18LSTM_bs16_trlen10_cv3_best_epoch18",
+        "size_mb": 198,
         "description": "Morphokinetic Analysis Model (ResNet-18 + LSTM)"
     }
 }
@@ -97,20 +99,13 @@ def main():
     print("📋 HOW TO GET MODEL WEIGHTS:")
     print("-" * 60)
     print("""
-The model weights are proprietary and not publicly hosted.
+The model weights are hosted on Hugging Face.
 
 To get access:
-1. Email: vikram@subhag.in
-2. Subject: "EMBRION Model Weights Access Request"
-3. Include your organization and intended use
+1. Run this script: `python download_models.py`
+2. Or visit: https://huggingface.co/vikramsona02/EMprion-models
 
-After receiving the files:
-1. Place them in this directory (embryo_ai/)
-2. Re-run this script to verify
-
-Required files:
-- gardner_net_best.pth
-- modelres18LSTM_bs16_trlen10_cv3_best_epoch18
+If models are private, contact vikram@subhag.in.
 """)
     
     return 1

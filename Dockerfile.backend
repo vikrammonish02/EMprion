@@ -28,6 +28,6 @@ RUN python -c "from transformers import CLIPProcessor, CLIPModel; \
 
 WORKDIR /app/embryo_ai
 
-EXPOSE 8000
-
-CMD ["python", "main.py"]
+# Start application
+# We use a shell command to ensure download_models runs before the app starts
+CMD python download_models.py && python main.py
