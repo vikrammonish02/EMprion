@@ -22,8 +22,8 @@ MODEL_URLS = {
         "size_mb": 46.9,
         "description": "Gardner Grading Model (ResNet-18)"
     },
-        "model3D18_bs16_trlen10_cv3_best_epoch31": {
-                        "url": f"{BASE_URL}/model3D18_bs16_trlen10_cv3_best_epoch31%20(1)","size_mb": 198,
+        "modelr3D18_bs16_trlen10_cv3_best_epoch31": {
+                        "url": f"{BASE_URL}/modelr3D18_bs16_trlen10_cv3_best_epoch31%20(1)","size_mb": 198,
         "description": "Morphokinetic Analysis Model (ResNet-18 + LSTM)"
     }
 }
