@@ -20,6 +20,5 @@ WORKDIR /app/embryo_ai
 
 # Download model weights from Hugging Face
 RUN wget -q https://huggingface.co/vikramsona02/EMprion-models/resolve/main/gardner_net_best.pth -O gardner_net_best.pth
-RUN wget -q "https://huggingface.co/vikramsona02/EMprion-models/resolve/main/modelr3D18_bs16_trlen10_cv1_best_epoch25%20(1)" -O modelr3D18_bs16_trlen10_cv1_best_epoch25
-# Start application
+RUN wget -q "https://huggingface.co/vikramsona02/EMprion-models/resolve/main/modelr3D18_bs16_trlen10_cv3_best_epoch31%20(1)" -O modelr3D18_bs16_trlen10_cv3_best_epoch31# Start application
 CMD python main.py
