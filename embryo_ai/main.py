@@ -17,42 +17,53 @@ if current_dir not in sys.path:
 ai_service = None
 ALLOW_SIMULATION = os.environ.get("ALLOW_SIMULATION", "false").lower() == "true"
 SERVICE_ERROR = None
+DEBUG_LOGS = []
+
+def log_debug(msg):
+    log = f"{asyncio.get_event_loop().time():.2f}: {msg}"
+    print(log)
+    DEBUG_LOGS.append(log)
 
 def check_models_present():
     """Quick check if required models exist on disk."""
     required = ["gardner_net_best.pth", "modelr3D18_bs16_trlen10_cv3_best_epoch31"]
     for m in required:
         if not os.path.exists(os.path.join(current_dir, m)):
-            print(f"🔍 Model check: {m} is MISSING")
+            log_debug(f"🔍 Model check: {m} is MISSING")
             return False
     return True
 
 async def load_ai_service_task():
     global ai_service, SERVICE_ERROR
+    log_debug("🧬 [Service Loader] Starting...")
+    
+    if ALLOW_SIMULATION:
+        log_debug("💡 [Service Loader] ALLOW_SIMULATION is TRUE. SKIPPING all heavy loading for stability.")
+        ai_service = None
+        return
+
     try:
-        print("🧬 [Service Loader] Checking environment...")
+        log_debug("🧬 [Service Loader] Checking environment for Production...")
         models_available = check_models_present()
         
-        if not models_available and ALLOW_SIMULATION:
-            print("💡 [Service Loader] Models missing but Simulation is allowed. SKIPPING heavy load to save memory.")
-            ai_service = None
+        if not models_available:
+            log_debug("❌ [Service Loader] Models missing. Production mode cannot start.")
             return
 
         # Give the server a moment to settle and pass health checks
         await asyncio.sleep(5) 
         
-        print("🧬 [Service Loader] Importing AI modules (High Memory Phase)...")
-        # Inline import to avoid global memory pressure until needed
+        log_debug("🧬 [Service Loader] Importing AI modules (High Memory Phase)...")
         from service import ai_service as loaded_service
         ai_service = loaded_service
         
         if ai_service:
-            print("✅ [Service Loader] AI Service loaded successfully")
+            log_debug("✅ [Service Loader] AI Service loaded successfully")
         else:
-            print("⚠️ [Service Loader] AI Service returned None")
+            log_debug("⚠️ [Service Loader] AI Service returned None")
     except Exception as e:
         SERVICE_ERROR = str(e)
-        print(f"❌ [Service Loader] CRITICAL FAILURE: {e}")
+        log_debug(f"❌ [Service Loader] CRITICAL FAILURE: {e}")
         import traceback
         traceback.print_exc()
         ai_service = None
@@ -60,18 +71,18 @@ async def load_ai_service_task():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup logic
-    print("--- BACKEND LIFECYCLE START ---")
-    print(f"🌍 PID: {os.getpid()}")
-    print(f"📊 Mode: {'Simulation Allowed' if ALLOW_SIMULATION else 'Production Only'}")
+    log_debug("--- BACKEND LIFECYCLE START ---")
+    log_debug(f"🌍 PID: {os.getpid()}")
+    log_debug(f"📊 Mode: {'FORCE SIMULATION' if ALLOW_SIMULATION else 'PRODUCTION ONLY'}")
     
     # Start loading task in the background (fire and forget)
     loop = asyncio.get_event_loop()
     loop.create_task(load_ai_service_task())
     
-    print("✅ Web Server is UP (Service initializing in background)")
+    log_debug("✅ Web Server is UP")
     yield
     # Shutdown logic
-    print("--- BACKEND LIFECYCLE END ---")
+    log_debug("--- BACKEND LIFECYCLE END ---")
 
 app = FastAPI(
     title="EMprion AI Brain", 
@@ -146,8 +157,8 @@ def generate_mock_result(analysis_type: str) -> dict:
 @app.get("/")
 async def root():
     models_ok = check_models_present()
-    status = "online" if (ai_service or ALLOW_SIMULATION) else "initializing"
-    mode = "Simulation (Active)" if (not ai_service and ALLOW_SIMULATION) else "Production"
+    status = "online" if ALLOW_SIMULATION or ai_service else "initializing"
+    mode = "Simulation (FORCE)" if ALLOW_SIMULATION else "Production"
     
     return {
         "status": status, 
@@ -155,8 +166,13 @@ async def root():
         "mode": mode,
         "models_on_disk": models_ok,
         "service_ready": ai_service is not None,
-        "error": SERVICE_ERROR
+        "service_error": SERVICE_ERROR,
+        "last_log": DEBUG_LOGS[-1] if DEBUG_LOGS else None
     }
+
+@app.get("/api/logs")
+async def get_logs():
+    return {"logs": DEBUG_LOGS}
 
 @app.get("/health")
 async def health():
