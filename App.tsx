@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import Header from './components/Header';
+import StitchSidebar from './components/StitchSidebar';
+import StitchHeader from './components/StitchHeader';
 import DashboardHome from './screens/DashboardHome';
 import CycleDetail from './screens/CycleDetail';
 import AssessmentDetail from './screens/AssessmentDetail';
@@ -12,10 +12,16 @@ import PatientDetail from './screens/PatientDetail';
 import NewPatientForm from './screens/NewPatientForm';
 import NewCycleForm from './screens/NewCycleForm';
 import ReportsDashboard from './screens/ReportsDashboard';
+import StitchDashboard from './screens/StitchDashboard';
+import StitchAssessmentDetail from './screens/StitchAssessmentDetail';
+import StitchCycleDetail from './screens/StitchCycleDetail';
+import StitchPatientsList from './screens/StitchPatientsList';
 import { MOCK_CYCLES, MOCK_PATIENTS, MOCK_EMBRYOS } from './constants';
 import { Cycle, Patient, Embryo } from './types';
 
 const App: React.FC = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // Load initial state from localStorage or fallback to mocks
   const [activeCycles, setActiveCycles] = useState<Cycle[]>(() => {
     const saved = localStorage.getItem('EMBRION_CYCLES');
@@ -50,24 +56,32 @@ const App: React.FC = () => {
   const addEmbryos = (e: Embryo[]) => setActiveEmbryos(prev => [...e, ...prev]);
   const deletePatient = (id: string) => {
     setPatients(prev => prev.filter(p => p.id !== id));
-    // Also optional: cleanup cycles/embryos? For data safety, keeping them orphaned or cascading delete is a choice.
-    // For now, simple soft delete of patient record. 
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header />
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+    <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
+      <StitchSidebar isOpen={sidebarOpen} toggle={() => setSidebarOpen(!sidebarOpen)} />
+
+      <div className="flex-1 flex flex-col min-w-0 h-full">
+        <StitchHeader onToggleSidebar={() => setSidebarOpen(true)} />
+
+        <main className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar">
           <Routes>
-            <Route path="/" element={<DashboardHome cycles={activeCycles} patients={patients} />} />
-            <Route path="/patients" element={<PatientsList patients={patients} onDeletePatient={deletePatient} />} />
+            {/* New Stitch Routes */}
+            <Route path="/" element={<StitchDashboard cycles={activeCycles} patients={patients} />} />
+            <Route path="/patients" element={<StitchPatientsList patients={patients} onDeletePatient={deletePatient} />} />
+            <Route path="/cycle/:id" element={<StitchCycleDetail cycles={activeCycles} embryos={activeEmbryos} onAddEmbryos={addEmbryos} />} />
+            <Route path="/embryo/:id" element={<StitchAssessmentDetail embryos={activeEmbryos} />} />
+
+            {/* Legacy/Other Routes */}
+            <Route path="/legacy-dashboard" element={<DashboardHome cycles={activeCycles} patients={patients} />} />
+            <Route path="/legacy-patients" element={<PatientsList patients={patients} onDeletePatient={deletePatient} />} />
+            <Route path="/legacy-cycle/:id" element={<CycleDetail cycles={activeCycles} embryos={activeEmbryos} onAddEmbryos={addEmbryos} />} />
+            <Route path="/legacy-embryo/:id" element={<AssessmentDetail embryos={activeEmbryos} />} />
+
             <Route path="/new-patient" element={<NewPatientForm onAddPatient={addPatient} />} />
             <Route path="/patient/:id" element={<PatientDetail patients={patients} cycles={activeCycles} embryos={activeEmbryos} />} />
-            <Route path="/cycle/:id" element={<CycleDetail cycles={activeCycles} embryos={activeEmbryos} onAddEmbryos={addEmbryos} />} />
             <Route path="/assessment" element={<AssessmentOverview embryos={activeEmbryos} cycles={activeCycles} />} />
-            <Route path="/embryo/:id" element={<AssessmentDetail embryos={activeEmbryos} />} />
             <Route
               path="/new-cycle"
               element={
@@ -80,7 +94,7 @@ const App: React.FC = () => {
               }
             />
             <Route path="/reports" element={<ReportsDashboard />} />
-            <Route path="*" element={<div className="text-center mt-20 text-gray-400">Section Under Development</div>} />
+            <Route path="*" element={<div className="text-center mt-20 text-gray-400 font-black uppercase tracking-widest">Section Under Neural Development</div>} />
           </Routes>
         </main>
       </div>
