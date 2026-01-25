@@ -64,11 +64,11 @@ async def lifespan(app: FastAPI):
     print(f"🌍 PID: {os.getpid()}")
     print(f"📊 Mode: {'Simulation Allowed' if ALLOW_SIMULATION else 'Production Only'}")
     
-    # TEMPORARILY DISABLED TO PREVENT CRASHES
-    # loop = asyncio.get_event_loop()
-    # loop.create_task(load_ai_service_task())
+    # Start loading task in the background (fire and forget)
+    loop = asyncio.get_event_loop()
+    loop.create_task(load_ai_service_task())
     
-    print("✅ Web Server is UP (Simulation Only Mode Active)")
+    print("✅ Web Server is UP (Service initializing in background)")
     yield
     # Shutdown logic
     print("--- BACKEND LIFECYCLE END ---")
