@@ -167,14 +167,21 @@ async def health():
         "simulation_enabled": ALLOW_SIMULATION
     }
 
+@app.get("/api/predict_test")
+async def predict_test(analysis_type: str = "gardner"):
+    """Diagnostic endpoint to test simulation without file upload."""
+    return generate_mock_result(analysis_type)
+
 @app.post("/api/predict", response_model=AnalysisResult)
 async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
     """
     Unified prediction endpoint with Simulation Fallback.
     """
+    # FAILS HERE IF MULTIPART PARSING CRASHES
+    
     if ai_service is None:
         if ALLOW_SIMULATION:
-            await asyncio.sleep(1.0) # Brief simulation delay
+            # Return immediately to avoid any heavy parsing issues
             return generate_mock_result(analysis_type)
         else:
             raise HTTPException(status_code=503, detail="AI Engine still initializing or unavailable.")
