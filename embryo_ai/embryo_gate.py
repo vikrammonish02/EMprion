@@ -29,14 +29,14 @@ POSITIVE_PROMPTS = [
 
 NEGATIVE_PROMPTS = [
     "a photo of an office or room",
-    "a desk with furniture",
-    "an indoor scene",
+    "office chair and desk",
+    "meeting room or interior",
+    "corporate workspace",
+    "a bookshelf or document",
     "a photo of a person",
-    "a product photo",
-    "a screenshot with text",
-    "a diagram or infographic",
-    "a cartoon or illustration",
-    "a household device"
+    "a screen or monitor",
+    "a product or household item",
+    "a diagram or infographic"
 ]
 
 def _load_clip():

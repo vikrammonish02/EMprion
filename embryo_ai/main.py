@@ -100,15 +100,20 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
             else:
                 result = ai_service.predict_morphokinetics(file_bytes, file.filename)
             
-            if "error" in result:
+            if result and "error" in result:
+                # CLINICAL REJECTION: Stop immediately. No fallback to mock.
                 raise HTTPException(status_code=400, detail=result["error"])
-            return result
+            
+            if result:
+                return result
+        except HTTPException as he:
+            raise he
         except Exception as e:
-            print(f"Bypassing AI Service due to error: {e}")
-            # Fallback to simulation if real fails
+            print(f"System Error in AI Service: {e}")
+            # Only fallback for unexpected system failures, not clinical rejections
     
-    # Simulation Mode
-    await asyncio.sleep(1.0)
+    # Simulation Mode - Only reached if ai_service is null or system failure occurs
+    await asyncio.sleep(0.5)
     return generate_mock_result(analysis_type)
 
 if __name__ == "__main__":

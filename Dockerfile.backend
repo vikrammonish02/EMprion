@@ -1,6 +1,9 @@
 FROM python:3.11-slim-bookworm
 WORKDIR /app
-RUN pip install --no-cache-dir fastapi uvicorn python-multipart pydantic numpy opencv-python-headless
+COPY embryo_ai/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+# Pre-download CLIP model to avoid first-run timeout
+RUN python -c "from transformers import CLIPProcessor, CLIPModel; CLIPModel.from_pretrained('openai/clip-vit-base-patch32'); CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32')"
 COPY embryo_ai/ ./embryo_ai/
 WORKDIR /app/embryo_ai
 CMD uvicorn main:app --host 0.0.0.0 --port 8000
