@@ -7,30 +7,36 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 
-# Global service instance (lazy loaded)
+# Global service instance (lazy loaded in background)
 ai_service = None
 ALLOW_SIMULATION = os.environ.get("ALLOW_SIMULATION", "false").lower() == "true"
+
+async def load_ai_service_task():
+    global ai_service
+    try:
+        print("🧬 Background: Loading AI Service...")
+        # Give the server a moment to settle
+        await asyncio.sleep(2)
+        from service import ai_service as loaded_service
+        ai_service = loaded_service
+        if ai_service:
+            print("✅ Background: AI Service loaded successfully")
+        else:
+            print("⚠️ Background: AI Service initialized as None (Simulation fallback active)")
+    except Exception as e:
+        print(f"❌ Background: Error during service initialization: {e}")
+        ai_service = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup logic
-    global ai_service
-    print("🚀 Backend starting up...")
+    print("🚀 Backend Process Starting...")
     print(f"📊 Mode: {'Simulation' if ALLOW_SIMULATION else 'Production'}")
     
-    # Load AI service in the background or at start
-    try:
-        print("🧬 Loading AI Service (this may take a moment)...")
-        from service import ai_service as loaded_service
-        ai_service = loaded_service
-        if ai_service:
-            print("✅ AI Service loaded successfully")
-        else:
-            print("⚠️ AI Service initialized as None (Simulation fallback available)")
-    except Exception as e:
-        print(f"❌ CRITICAL error during service initialization: {e}")
-        ai_service = None
+    # Start loading task in the background
+    asyncio.create_task(load_ai_service_task())
     
+    print("✅ Main Loop Ready (Models loading in background)")
     yield
     # Shutdown logic
     print("👋 Backend shutting down...")
@@ -107,14 +113,18 @@ def generate_mock_result(analysis_type: str) -> dict:
 
 @app.get("/")
 async def root():
-    status = "online" if (ai_service or ALLOW_SIMULATION) else "degraded"
+    status = "online" if (ai_service or ALLOW_SIMULATION) else "loading"
     mode = "Simulation" if (not ai_service and ALLOW_SIMULATION) else "Production"
     return {
         "status": status, 
         "model": "Subhag Embryon v3", 
         "mode": mode,
-        "service_initialized": ai_service is not None
+        "service_status": "Ready" if ai_service else "Initializing..."
     }
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "service_ready": ai_service is not None}
 
 @app.post("/api/predict", response_model=AnalysisResult)
 async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
@@ -126,7 +136,7 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
             await asyncio.sleep(1.0) # Brief simulation delay
             return generate_mock_result(analysis_type)
         else:
-            raise HTTPException(status_code=503, detail="AI Engine not initialized. (Models missing and Simulation disabled)")
+            raise HTTPException(status_code=503, detail="AI Engine still initializing or unavailable.")
 
     content = await file.read()
     
@@ -146,7 +156,6 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
         raise HTTPException(status_code=500, detail=f"Inference error: {str(e)}")
 
 if __name__ == "__main__":
-    # Railway passes the port as an environment variable
     port = int(os.environ.get("PORT", 8000))
-    print(f"📡 Starting server on port {port}...")
+    print(f"📡 Binding to 0.0.0.0:{port}")
     uvicorn.run("main:app", host="0.0.0.0", port=port, log_level="info")
