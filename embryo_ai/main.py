@@ -5,8 +5,13 @@ from pydantic import BaseModel
 import uvicorn
 import os
 
-from service import ai_service
-
+# Try to import AI service - may fail if models not loaded
+try:
+    from service import ai_service
+    print("AI Service loaded successfully")
+except Exception as e:
+    print(f"WARNING: AI Service failed to load: {e}")
+    ai_service = None
 app = FastAPI(title="EMprion AI Brain", description="Regulatory Embryo Grading Service")
 
 # Enable CORS for the React frontend
