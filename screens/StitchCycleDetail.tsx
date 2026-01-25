@@ -162,7 +162,7 @@ const StitchCycleDetail: React.FC<StitchCycleDetailProps> = ({ cycles, embryos: 
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 cycleId={id!}
-                onUpload={(newEmbryos) => {
+                onUploadComplete={(newEmbryos) => {
                     onAddEmbryos(newEmbryos);
                     setIsModalOpen(false);
                 }}

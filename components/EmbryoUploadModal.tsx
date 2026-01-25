@@ -14,9 +14,10 @@ interface EmbryoUploadModalProps {
     isOpen: boolean;
     onClose: () => void;
     onUploadComplete: (embryos: any[]) => void;
+    cycleId: string;
 }
 
-const EmbryoUploadModal: React.FC<EmbryoUploadModalProps> = ({ isOpen, onClose, onUploadComplete }) => {
+const EmbryoUploadModal: React.FC<EmbryoUploadModalProps> = ({ isOpen, onClose, onUploadComplete, cycleId }) => {
     const [files, setFiles] = useState<UploadedFile[]>([]);
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +78,7 @@ const EmbryoUploadModal: React.FC<EmbryoUploadModalProps> = ({ isOpen, onClose, 
             status: 'PENDING',
             confidence: 0,
             viabilityIndex: 0,
+            cycleId,
             gardner: { expansion: 0, icm: 'B', te: 'B' },
             file: f.file
         }));
