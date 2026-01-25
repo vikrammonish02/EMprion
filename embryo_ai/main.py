@@ -12,12 +12,15 @@ try:
 except Exception as e:
     print(f"WARNING: AI Service failed to load: {e}")
     ai_service = None
+
+ALLOW_SIMULATION = os.environ.get("ALLOW_SIMULATION", "false").lower() == "true"
+
 app = FastAPI(title="EMprion AI Brain", description="Regulatory Embryo Grading Service")
 
-# Enable CORS for the React frontend
+# ... (CORS middleware stays the same)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, restrict to React app origin
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,28 +37,79 @@ class AnalysisResult(BaseModel):
     concordance: dict
     analysis_type: str
 
+def generate_mock_result(analysis_type: str) -> dict:
+    import random
+    
+    if analysis_type == "gardner":
+        return {
+            "stage": "Blastocyst",
+            "confidence": f"{random.uniform(0.85, 0.98):.2%}",
+            "commentary": "High-quality blastocyst with excellent morphology and clear ICM/TE borders.",
+            "action": "Recommended for clinical transfer (Priority 1)",
+            "gardner": {
+                "expansion": "4",
+                "icm": "A",
+                "te": "A",
+                "cell_count": str(random.randint(120, 150)),
+                "cavity_symmetry": f"{random.randint(90, 99)}%",
+                "fragmentation": f"<{random.randint(2, 5)}%"
+            },
+            "milestones": {"unavailable": True, "reason": "Gardner Mode Only"},
+            "anomalies": ["No significant anomalies detected."],
+            "concordance": {"inter_observer": 0.92, "historical": 0.88},
+            "analysis_type": "gardner"
+        }
+    else: # morphokinetics
+        return {
+            "stage": "Expanded Blastocyst (tEB)",
+            "confidence": f"{random.uniform(0.8, 0.95):.2%}",
+            "commentary": "Continuous and synchronous cleavage pattern within optimal clinical windows.",
+            "action": "Proceed to biopsy / Cryopreservation",
+            "gardner": {"expansion": "--", "icm": "--", "te": "--"},
+            "milestones": {
+                "t2": "26.5h",
+                "t3": "37.2h",
+                "t5": "48.8h",
+                "t8": "54.1h",
+                "tM": "92.5h",
+                "tB": "104.2h",
+                "tEB": "116.8h",
+                "s3": "10.7h"
+            },
+            "anomalies": ["Direct cleavage (t1->t3) excluded."],
+            "concordance": {"AI_Confidence": 0.94, "Literature_Match": 0.91},
+            "analysis_type": "morphokinetics"
+        }
+
 @app.get("/")
 async def root():
-    return {"status": "online", "model": "Subhag Embryon v3"}
+    status = "online" if (ai_service or ALLOW_SIMULATION) else "degraded"
+    mode = "Simulation" if (not ai_service and ALLOW_SIMULATION) else "Production"
+    return {"status": status, "model": "Subhag Embryon v3", "mode": mode}
 
 @app.post("/api/predict", response_model=AnalysisResult)
 async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
     """
-    Unified prediction endpoint.
-    analysis_type: 'gardner' (for images) or 'morphokinetics' (for videos)
+    Unified prediction endpoint with Simulation Fallback.
     """
     if ai_service is None:
-        raise HTTPException(status_code=503, detail="AI Engine not initialized. Check Zenodo folder path.")
+        if ALLOW_SIMULATION:
+            import asyncio
+            await asyncio.sleep(1.5) # Simulate processing time
+            return generate_mock_result(analysis_type)
+        else:
+            raise HTTPException(status_code=503, detail="AI Engine not initialized. (Models missing and Simulation disabled)")
 
     content = await file.read()
     
     try:
+        # ... (rest of the original predict logic)
         if analysis_type == "gardner":
             result = ai_service.predict_gardner(content)
         elif analysis_type == "morphokinetics":
             result = ai_service.predict_morphokinetics(content, file.filename)
         else:
-            raise HTTPException(status_code=400, detail="Invalid analysis_type. Use 'gardner' or 'morphokinetics'.")
+            raise HTTPException(status_code=400, detail="Invalid analysis_type.")
         
         if "error" in result:
             raise HTTPException(status_code=500, detail=result["error"])
