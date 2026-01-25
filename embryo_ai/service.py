@@ -179,4 +179,8 @@ class AIService:
 
 
 # Singleton instance
-ai_service = AIService() if HAS_ENGINE else None
+try:
+    ai_service = AIService() if HAS_ENGINE else None
+except Exception as e:
+    print(f"CRITICAL: Failed to initialize AIService: {e}")
+    ai_service = None

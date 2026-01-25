@@ -12,10 +12,10 @@ embryo_ai/__pycache__/
 # AI Model Weights (Large Files - Download separately)
 embryo_ai/*.pth
 embryo_ai/model*
-embryo_ai/bench_mk_pred/
+# embryo_ai/bench_mk_pred/ # Included for model architecture code
 
-# Configuration files with credentials
-*.ini
+# Configuration files (Included for model config)
+# *.ini
 
 # IDE / Editor
 .vscode/
