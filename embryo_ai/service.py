@@ -69,6 +69,10 @@ class AIService:
                 print(f"CLIP GATE REJECTION: {reason}")
                 return {"error": f"Input Rejected: {reason}. Please upload a valid embryo image."}
             print(f"CLIP GATE PASSED: {reason}")
+        else:
+            # CLINICAL SAFETY LOCK: Do not allow analysis if the safety gate is offline
+            print("CRITICAL SAFETY ERROR: Embryo Gate is OFFLINE. Blocking analysis.")
+            return {"error": "Clinical Safety Error: Embryo Validation Gate (CLIP) is unavailable. Analysis blocked for regulatory compliance."}
 
         # Preprocess frame
         tensor = self._engine._preprocess_frame(frame)
@@ -154,6 +158,10 @@ class AIService:
                         print(f"CLIP GATE REJECTION (Video): {reason}")
                         return {"error": f"Input Rejected: {reason}. Please upload a valid embryo video."}
                     print(f"CLIP GATE PASSED (Video): {reason}")
+            else:
+                # CLINICAL SAFETY LOCK
+                print("CRITICAL SAFETY ERROR: Embryo Gate is OFFLINE (Video). Blocking analysis.")
+                return {"error": "Clinical Safety Error: Embryo Validation Gate (CLIP) is unavailable. Analysis blocked."}
 
             results = self._engine.predict(
                 input_data=tensor,
