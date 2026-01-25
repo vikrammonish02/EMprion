@@ -16,23 +16,42 @@ if current_dir not in sys.path:
 # Global service instance (lazy loaded in background)
 ai_service = None
 ALLOW_SIMULATION = os.environ.get("ALLOW_SIMULATION", "false").lower() == "true"
+SERVICE_ERROR = None
+
+def check_models_present():
+    """Quick check if required models exist on disk."""
+    required = ["gardner_net_best.pth", "modelr3D18_bs16_trlen10_cv3_best_epoch31"]
+    for m in required:
+        if not os.path.exists(os.path.join(current_dir, m)):
+            print(f"🔍 Model check: {m} is MISSING")
+            return False
+    return True
 
 async def load_ai_service_task():
-    global ai_service
+    global ai_service, SERVICE_ERROR
     try:
-        print("🧬 [Service Loader] Starting...")
+        print("🧬 [Service Loader] Checking environment...")
+        models_available = check_models_present()
+        
+        if not models_available and ALLOW_SIMULATION:
+            print("💡 [Service Loader] Models missing but Simulation is allowed. SKIPPING heavy load to save memory.")
+            ai_service = None
+            return
+
         # Give the server a moment to settle and pass health checks
         await asyncio.sleep(5) 
         
-        print("🧬 [Service Loader] Importing AI modules...")
+        print("🧬 [Service Loader] Importing AI modules (High Memory Phase)...")
+        # Inline import to avoid global memory pressure until needed
         from service import ai_service as loaded_service
         ai_service = loaded_service
         
         if ai_service:
             print("✅ [Service Loader] AI Service loaded successfully")
         else:
-            print("⚠️ [Service Loader] AI Service returned None (falling back to simulation)")
+            print("⚠️ [Service Loader] AI Service returned None")
     except Exception as e:
+        SERVICE_ERROR = str(e)
         print(f"❌ [Service Loader] CRITICAL FAILURE: {e}")
         import traceback
         traceback.print_exc()
@@ -43,13 +62,13 @@ async def lifespan(app: FastAPI):
     # Startup logic
     print("--- BACKEND LIFECYCLE START ---")
     print(f"🌍 PID: {os.getpid()}")
-    print(f"📊 Simulation Mode Allowed: {ALLOW_SIMULATION}")
+    print(f"📊 Mode: {'Simulation Allowed' if ALLOW_SIMULATION else 'Production Only'}")
     
     # Start loading task in the background (fire and forget)
     loop = asyncio.get_event_loop()
     loop.create_task(load_ai_service_task())
     
-    print("✅ Web Server is UP (Service initializing in background)")
+    print("✅ Web Server is UP (Diagnostics ready at /)")
     yield
     # Shutdown logic
     print("--- BACKEND LIFECYCLE END ---")
@@ -126,18 +145,27 @@ def generate_mock_result(analysis_type: str) -> dict:
 
 @app.get("/")
 async def root():
-    status = "online" if (ai_service or ALLOW_SIMULATION) else "loading"
-    mode = "Simulation" if (not ai_service and ALLOW_SIMULATION) else "Production"
+    models_ok = check_models_present()
+    status = "online" if (ai_service or ALLOW_SIMULATION) else "initializing"
+    mode = "Simulation (Active)" if (not ai_service and ALLOW_SIMULATION) else "Production"
+    
     return {
         "status": status, 
         "model": "Subhag Embryon v3", 
         "mode": mode,
-        "service_status": "Ready" if ai_service else "Initializing..."
+        "models_on_disk": models_ok,
+        "service_ready": ai_service is not None,
+        "error": SERVICE_ERROR
     }
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service_ready": ai_service is not None}
+    return {
+        "status": "ok", 
+        "uptime_pid": os.getpid(),
+        "service_ready": ai_service is not None,
+        "simulation_enabled": ALLOW_SIMULATION
+    }
 
 @app.post("/api/predict", response_model=AnalysisResult)
 async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
