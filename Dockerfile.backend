@@ -17,6 +17,7 @@ RUN pip install --no-cache-dir transformers pillow
 COPY embryo_ai/ ./embryo_ai/
 
 # application code already copied to /app/embryo_ai
+WORKDIR /app/embryo_ai
 
 # Start application
 CMD ["python", "main.py"]
