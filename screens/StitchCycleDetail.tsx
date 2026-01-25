@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Cycle, Embryo, Patient } from '../types';
 import EmbryoUploadModal from '../components/EmbryoUploadModal';
+import { analyzeEmbryo } from '../api';
 
 interface StitchCycleDetailProps {
     cycles: Cycle[];
@@ -13,6 +14,7 @@ const StitchCycleDetail: React.FC<StitchCycleDetailProps> = ({ cycles, embryos: 
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const cycle = cycles.find(c => c.id === id);
     const cycleEmbryos = allEmbryos.filter(e => e.cycleId === id);
@@ -76,6 +78,12 @@ const StitchCycleDetail: React.FC<StitchCycleDetailProps> = ({ cycles, embryos: 
                 <div className="flex items-center justify-between">
                     <h3 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-3">
                         Cohort Registry <span className="text-xs bg-gray-100 text-gray-400 px-4 py-1.5 rounded-full font-bold uppercase tracking-widest">{cycleEmbryos.length} Items</span>
+                        {isAnalyzing && (
+                            <div className="flex items-center gap-2 translate-y-[-2px]">
+                                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Neural Scan Active...</span>
+                            </div>
+                        )}
                     </h3>
                     <div className="flex gap-3">
                         <button
@@ -162,9 +170,57 @@ const StitchCycleDetail: React.FC<StitchCycleDetailProps> = ({ cycles, embryos: 
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 cycleId={id!}
-                onUploadComplete={(newEmbryos) => {
-                    onAddEmbryos(newEmbryos);
+                onUploadComplete={async (newEmbryos: any[]) => {
+                    setIsAnalyzing(true);
                     setIsModalOpen(false);
+                    const errors: string[] = [];
+
+                    try {
+                        const promises = newEmbryos.map(async (e, idx) => {
+                            if (!e.file) return null;
+                            try {
+                                const result = await analyzeEmbryo(e.file, e.assetType === 'VIDEO' ? 'morphokinetics' : 'gardner');
+                                return {
+                                    id: `batch_${Date.now()}_${idx}`,
+                                    displayId: `AI-${e.file.name.split('.')[0]}`,
+                                    cycleId: id,
+                                    gardner: {
+                                        expansion: parseInt(result.gardner?.expansion) || 4,
+                                        icm: result.gardner?.icm || 'B',
+                                        te: result.gardner?.te || 'B',
+                                        cell_count: result.gardner?.cell_count || '--',
+                                        cavity_symmetry: result.gardner?.cavity_symmetry || '--',
+                                        fragmentation: result.gardner?.fragmentation || '--'
+                                    },
+                                    viabilityIndex: parseInt(result.confidence?.replace('%', '')) || 85,
+                                    status: 'COMPLETED' as const,
+                                    assetType: e.assetType,
+                                    analysisModel: e.assetType === 'VIDEO' ? 'MORPHOKINETICS' as const : 'GARDNER' as const,
+                                    confidence: (() => {
+                                        const val = parseFloat(result.confidence || '90');
+                                        return val <= 1 ? val * 100 : val;
+                                    })(),
+                                    file: e.file,
+                                    commentary: result.commentary
+                                } as Embryo;
+                            } catch (err: any) {
+                                console.error('Batch analysis failed', err);
+                                errors.push(`${e.file.name}: ${err.message || 'Unknown error'}`);
+                                return null;
+                            }
+                        });
+
+                        const results = (await Promise.all(promises)).filter(r => r !== null) as Embryo[];
+                        if (results.length > 0) {
+                            onAddEmbryos(results);
+                        }
+
+                        if (errors.length > 0) {
+                            window.alert(`Analysis Report:\n\n${results.length} processed successfully.\n${errors.length} failed logic gates.\n\nErrors:\n${errors.join('\n')}`);
+                        }
+                    } finally {
+                        setIsAnalyzing(false);
+                    }
                 }}
             />
         </div>

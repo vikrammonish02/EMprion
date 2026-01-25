@@ -88,44 +88,46 @@ const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos
                         </div>
                     </div>
 
-                    <div className="bg-white/50 backdrop-blur-xl p-10 rounded-[40px] border border-white shadow-sm space-y-8">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-black text-gray-900 uppercase tracking-widest">Morphokinetic Tracking</h3>
-                            <span className="text-[10px] font-bold text-gray-400 px-3 py-1 bg-gray-50 rounded-full">REFERENCE: OPTIMAL RANGE</span>
-                        </div>
+                    {(embryo.assetType === 'VIDEO' || (embryo as any).analysisModel === 'MORPHOKINETICS') && (
+                        <div className="bg-white/50 backdrop-blur-xl p-10 rounded-[40px] border border-white shadow-sm space-y-8">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-black text-gray-900 uppercase tracking-widest">Morphokinetic Tracking</h3>
+                                <span className="text-[10px] font-bold text-gray-400 px-3 py-1 bg-gray-50 rounded-full">REFERENCE: OPTIMAL RANGE</span>
+                            </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="border-b border-gray-100">
-                                    <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                                        <th className="pb-4">Parameter</th>
-                                        <th className="pb-4 text-center">Observed (h)</th>
-                                        <th className="pb-4 text-center">Deviation</th>
-                                        <th className="pb-4 text-right">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50/50">
-                                    {[
-                                        { p: 't2', v: 24.2, r: '18–30' },
-                                        { p: 't3', v: 36.8, r: '30–42' },
-                                        { p: 't8', v: 52.4, r: '60–74' },
-                                        { p: 's3', v: 12.1, r: '<5.0' },
-                                    ].map((row) => (
-                                        <tr key={row.p} className="group hover:bg-white transition-colors duration-300">
-                                            <td className="py-5 font-black text-gray-600 mono uppercase">{row.p}</td>
-                                            <td className="py-5 text-center font-bold text-gray-900 tracking-tight">{row.v}</td>
-                                            <td className="py-5 text-center text-xs font-bold text-emerald-500">OPTIMAL</td>
-                                            <td className="py-5 text-right">
-                                                <div className="inline-flex h-2 w-12 bg-gray-100 rounded-full overflow-hidden">
-                                                    <div className="h-full w-full bg-emerald-500 rounded-full"></div>
-                                                </div>
-                                            </td>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="border-b border-gray-100">
+                                        <tr className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                            <th className="pb-4">Parameter</th>
+                                            <th className="pb-4 text-center">Observed (h)</th>
+                                            <th className="pb-4 text-center">Deviation</th>
+                                            <th className="pb-4 text-right">Status</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50/50">
+                                        {[
+                                            { p: 't2', v: 24.2, r: '18–30' },
+                                            { p: 't3', v: 36.8, r: '30–42' },
+                                            { p: 't8', v: 52.4, r: '60–74' },
+                                            { p: 's3', v: 12.1, r: '<5.0' },
+                                        ].map((row) => (
+                                            <tr key={row.p} className="group hover:bg-white transition-colors duration-300">
+                                                <td className="py-5 font-black text-gray-600 mono uppercase">{row.p}</td>
+                                                <td className="py-5 text-center font-bold text-gray-900 tracking-tight">{row.v}</td>
+                                                <td className="py-5 text-center text-xs font-bold text-emerald-500">OPTIMAL</td>
+                                                <td className="py-5 text-right">
+                                                    <div className="inline-flex h-2 w-12 bg-gray-100 rounded-full overflow-hidden">
+                                                        <div className="h-full w-full bg-emerald-500 rounded-full"></div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Assessment Results Column (Right) */}
