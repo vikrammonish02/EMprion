@@ -119,18 +119,18 @@ const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos
                                     </thead>
                                     <tbody className="divide-y divide-gray-50/50">
                                         {[
-                                            { p: 't2', v: 24.2, r: '18–30' },
-                                            { p: 't3', v: 36.8, r: '30–42' },
-                                            { p: 't8', v: 52.4, r: '60–74' },
-                                            { p: 's3', v: 12.1, r: '<5.0' },
+                                            { p: 't2', v: embryo.morpho?.t2 || '--', r: '24–29' },
+                                            { p: 't3', v: embryo.morpho?.t3 || '--', r: '34–40' },
+                                            { p: 't8', v: embryo.morpho?.t8 || '--', r: '50–58' },
+                                            { p: 's3', v: embryo.morpho?.s3 || '--', r: '8–12' },
                                         ].map((row) => (
                                             <tr key={row.p} className="group hover:bg-white transition-colors duration-300">
                                                 <td className="py-5 font-black text-gray-600 mono uppercase">{row.p}</td>
                                                 <td className="py-5 text-center font-bold text-gray-900 tracking-tight">{row.v}</td>
-                                                <td className="py-5 text-center text-xs font-bold text-emerald-500">OPTIMAL</td>
+                                                <td className="py-5 text-center text-xs font-bold text-emerald-500">{row.v !== '--' ? 'OBSERVED' : '--'}</td>
                                                 <td className="py-5 text-right">
                                                     <div className="inline-flex h-2 w-12 bg-gray-100 rounded-full overflow-hidden">
-                                                        <div className="h-full w-full bg-emerald-500 rounded-full"></div>
+                                                        <div className={`h-full bg-emerald-500 rounded-full ${row.v !== '--' ? 'w-full' : 'w-0'}`}></div>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -152,7 +152,11 @@ const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos
 
                             <div className="space-y-1">
                                 <h2 className="text-7xl font-black tracking-tight">{embryo.gardner.expansion}{embryo.gardner.icm}{embryo.gardner.te}</h2>
-                                <p className="text-xl font-bold text-emerald-100">Top-Tier Quality (Prime)</p>
+                                <p className="text-xl font-bold text-emerald-100">
+                                    {embryo.gardner.icm === 'A' && embryo.gardner.te === 'A' ? 'Top-Tier Quality (Prime)' :
+                                        embryo.gardner.icm === 'C' || embryo.gardner.te === 'C' ? 'Sub-Optimal Development' :
+                                            'Standard Clinical Quality'}
+                                </p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-8 pt-8 border-t border-white/20">
@@ -199,7 +203,7 @@ const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos
                             <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">AI Decision Path</h4>
                         </div>
                         <p className="text-sm text-gray-500 leading-relaxed font-medium italic">
-                            "{embryo.commentary || "Zona thickness analysis indicates optimal expansion (Grade 4). Neural pathway detected synchronous t2-t3 cleavage windows with zero chromosomal aberration markers."}"
+                            "{embryo.commentary || `AI detected synchronous cleavage windows with ${embryo.confidence > 90 ? 'optimal' : 'stable'} developmental kinetics. Morphology consistent with Grade ${embryo.gardner.expansion}${embryo.gardner.icm}${embryo.gardner.te} standard.`}"
                         </p>
                     </div>
                 </div>

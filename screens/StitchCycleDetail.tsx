@@ -51,8 +51,8 @@ const StitchCycleDetail: React.FC<StitchCycleDetailProps> = ({ cycles, patients,
                         </div>
                         <div className="w-[1px] bg-white/20"></div>
                         <div>
-                            <p className="text-emerald-200 text-[9px] font-black uppercase tracking-widest mb-1">Retrieval Volume</p>
-                            <p className="text-lg font-black text-white tracking-tighter uppercase">{cycle.embryoCount} Embryos</p>
+                            <p className="text-emerald-200 text-[9px] font-black uppercase tracking-widest mb-1">Cohorts Size</p>
+                            <p className="text-lg font-black text-white tracking-tighter uppercase">{cycleEmbryos.length} Embryos</p>
                         </div>
                     </div>
                 </div>
@@ -63,12 +63,23 @@ const StitchCycleDetail: React.FC<StitchCycleDetailProps> = ({ cycles, patients,
                 <div className="flex justify-between min-w-[800px] items-center relative">
                     <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gray-100 -translate-y-1/2 z-0"></div>
 
-                    {['Ovarian Stimulation', 'Egg Retrieval', 'Fertilization', 'AI Assessment', 'Final Disposition'].map((step, idx) => {
-                        const isActive = idx <= 3; // Mock active state
+                    {['NEW', 'EGG_RETRIEVAL', 'FERTILIZATION', 'ASSESSMENT', 'DISPOSITION', 'COMPLETED'].map((statusKey, idx) => {
+                        const statusMap: Record<string, string> = {
+                            'NEW': 'Ovarian Stimulation',
+                            'EGG_RETRIEVAL': 'Egg Retrieval',
+                            'FERTILIZATION': 'Fertilization',
+                            'ASSESSMENT': 'AI Assessment',
+                            'DISPOSITION': 'Disposition',
+                            'COMPLETED': 'Finalized'
+                        };
+                        const statusOrder = ['NEW', 'EGG_RETRIEVAL', 'FERTILIZATION', 'ASSESSMENT', 'DISPOSITION', 'COMPLETED'];
+                        const currentIdx = statusOrder.indexOf(cycle.status);
+                        const isActive = idx <= currentIdx;
+
                         return (
-                            <div key={step} className="relative z-10 flex flex-col items-center gap-3 px-4">
+                            <div key={statusKey} className="relative z-10 flex flex-col items-center gap-3 px-4">
                                 <div className={`w-8 h-8 rounded-full border-4 transition-all duration-700 ${isActive ? 'bg-[#1B7B6A] border-emerald-50 shadow-lg scale-110' : 'bg-white border-gray-100'}`}></div>
-                                <p className={`text-[10px] font-black uppercase tracking-widest text-center ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>{step}</p>
+                                <p className={`text-[10px] font-black uppercase tracking-widest text-center ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>{statusMap[statusKey]}</p>
                             </div>
                         );
                     })}

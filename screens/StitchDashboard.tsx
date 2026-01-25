@@ -10,11 +10,14 @@ interface StitchDashboardProps {
 const StitchDashboard: React.FC<StitchDashboardProps> = ({ cycles, patients }) => {
     const navigate = useNavigate();
 
+    const totalEmbryosCount = cycles.reduce((acc, c) => acc + (c.embryoCount || 0), 0);
+    const avgViabilityVal = cycles.length > 0 ? 74 : 0; // Keeping 74 as a realistic base for simulation, but could be averaged if we had embryo data here
+
     const metrics = [
         { label: 'Active Projects', value: cycles.length, icon: '⚡', highlight: false, path: '/' },
-        { label: 'Review Required', value: cycles.filter(c => c.status === 'ASSESSMENT').length, icon: '⏳', highlight: true, path: '/assessment' },
-        { label: 'Avg Viability', value: '74%', icon: '📈', highlight: false, path: '/reports' },
-        { label: 'Total Embryos', value: cycles.reduce((acc, c) => acc + (c.embryoCount || 0), 0), icon: '🧬', highlight: false, path: '/patients' },
+        { label: 'Review Required', value: cycles.filter(c => c.status === 'ASSESSMENT' || c.status === 'DISPOSITION').length, icon: '⏳', highlight: true, path: '/assessment' },
+        { label: 'Avg Viability', value: `${avgViabilityVal}%`, icon: '📈', highlight: false, path: '/reports' },
+        { label: 'Total Embryos', value: totalEmbryosCount, icon: '🧬', highlight: false, path: '/patients' },
     ];
 
     return (
@@ -132,12 +135,12 @@ const StitchDashboard: React.FC<StitchDashboardProps> = ({ cycles, patients }) =
                                                 <div className="space-y-3">
                                                     <div className="flex justify-between items-end">
                                                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Analysis Pipeline</span>
-                                                        <span className="text-sm font-black text-gray-900">{idx === 3 ? '100%' : '65%'}</span>
+                                                        <span className="text-sm font-black text-gray-900">{idx === 3 ? '100%' : idx === 2 ? '85%' : idx === 1 ? '45%' : '15%'}</span>
                                                     </div>
                                                     <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden p-0.5 border border-gray-50 shadow-inner">
                                                         <div
                                                             className="h-full bg-gradient-to-r from-[#1B7B6A] to-[#7ECCC3] rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(27,123,106,0.3)]"
-                                                            style={{ width: idx === 3 ? '100%' : '65%' }}
+                                                            style={{ width: idx === 3 ? '100%' : idx === 2 ? '85%' : idx === 1 ? '45%' : '15%' }}
                                                         ></div>
                                                     </div>
                                                 </div>

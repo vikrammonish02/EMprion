@@ -96,18 +96,20 @@ const StitchAssessmentOverview: React.FC<StitchAssessmentOverviewProps> = ({ emb
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h4 className="text-2xl font-black text-gray-900 tracking-tight mono">{e.displayId}</h4>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Ready for Assessment</p>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
+                                                {e.status === 'COMPLETED' ? `Graded via ${e.analysisModel || 'AI'}` : 'Awaiting Assessment Scan'}
+                                            </p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Viability</p>
-                                            <p className={`text-2xl font-black ${e.viabilityIndex > 70 ? 'text-emerald-600' : 'text-amber-500'} tracking-tighter`}>{e.viabilityIndex}%</p>
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Viability Index</p>
+                                            <p className={`text-2xl font-black ${e.viabilityIndex > 70 ? 'text-emerald-600' : 'text-amber-500'} tracking-tighter`}>{e.viabilityIndex > 0 ? `${e.viabilityIndex}%` : '--'}</p>
                                         </div>
                                     </div>
 
                                     <div className="space-y-2 pt-6 border-t border-gray-50">
                                         <div className="flex justify-between items-end">
-                                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">AI Confirmation Matrix</p>
-                                            <p className="text-xs font-black text-gray-900 mono">{e.confidence}%</p>
+                                            <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">AI Matrix Confidence</p>
+                                            <p className="text-xs font-black text-gray-900 mono">{e.confidence > 0 ? `${e.confidence.toFixed(1)}%` : 'PENDING'}</p>
                                         </div>
                                         <div className="h-1.5 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100">
                                             <div className="h-full bg-gradient-to-r from-[#1B7B6A] to-blue-400 transition-all duration-1000" style={{ width: `${e.confidence}%` }}></div>
