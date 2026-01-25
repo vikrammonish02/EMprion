@@ -156,6 +156,13 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
         raise HTTPException(status_code=500, detail=f"Inference error: {str(e)}")
 
 if __name__ == "__main__":
+    # Railway passes the port as an environment variable
     port = int(os.environ.get("PORT", 8000))
-    print(f"📡 Binding to 0.0.0.0:{port}")
-    uvicorn.run("main:app", host="0.0.0.0", port=port, log_level="info")
+    print(f"--- STARTUP CONFIGURATION ---")
+    print(f"📡 Interface: 0.0.0.0")
+    print(f"🔌 Port: {port}")
+    print(f"📁 WORKDIR: {os.getcwd()}")
+    print(f"-----------------------------")
+    
+    # Use the app object directly to avoid import issues
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info", access_log=True)
