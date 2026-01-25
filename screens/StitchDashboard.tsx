@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cycle, Patient } from '../types';
+import { Cycle, Patient, Embryo } from '../types';
 
 interface StitchDashboardProps {
     cycles: Cycle[];

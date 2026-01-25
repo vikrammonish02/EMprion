@@ -36,10 +36,10 @@ def generate_mock_result(analysis_type: str) -> dict:
     # DETERMINISTIC CLINICAL BENCHMARKS (Non-Random for Compliance)
     if analysis_type == "gardner":
         return {
-            "stage": "Blastocyst",
+            "stage": "Blastocyst (SIMULATED)",
             "confidence": "94.20%",
-            "commentary": "Reference morphology check passed. High-quality blastocyst alignment detected.",
-            "action": "Proceed to clinical disposition",
+            "commentary": "NOTICE: This is a deterministic reference result used for system verification only. Not for clinical use.",
+            "action": "SYSTEM TEST IN PROGRESS",
             "gardner": {
                 "expansion": "4",
                 "icm": "A",
@@ -101,7 +101,7 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
                 result = ai_service.predict_morphokinetics(file_bytes, file.filename)
             
             if result and "error" in result:
-                # CLINICAL REJECTION: Stop immediately. No fallback to mock.
+                # MANDATORY CLINICAL REJECTION: Stop immediately.
                 raise HTTPException(status_code=400, detail=result["error"])
             
             if result:
@@ -109,12 +109,19 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
         except HTTPException as he:
             raise he
         except Exception as e:
-            print(f"System Error in AI Service: {e}")
-            # Only fallback for unexpected system failures, not clinical rejections
+            print(f"CRITICAL: AI Service Exception: {e}")
+            if os.getenv("ALLOW_SIMULATION", "false").lower() != "true":
+                raise HTTPException(status_code=500, detail="Clinical Engine Failure. Analysis blocked for safety.")
     
-    # Simulation Mode - Only reached if ai_service is null or system failure occurs
-    await asyncio.sleep(0.5)
-    return generate_mock_result(analysis_type)
+    # Simulation Mode - Heavily Guarded
+    if os.getenv("ALLOW_SIMULATION", "false").lower() == "true":
+        await asyncio.sleep(0.5)
+        return generate_mock_result(analysis_type)
+    
+    raise HTTPException(
+        status_code=500, 
+        detail="Clinical Safety Lock: AI Engine (CLIP/Inference) is offline. Simulated data is disabled in this environment."
+    )
 
 if __name__ == "__main__":
     # Hardcoded port 8000 was proven to work in ultrasound check
