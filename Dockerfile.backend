@@ -1,6 +1,6 @@
 FROM python:3.11-slim-bookworm
 WORKDIR /app
-RUN pip install --no-cache-dir fastapi uvicorn python-multipart pydantic
+RUN pip install --no-cache-dir fastapi uvicorn python-multipart pydantic numpy opencv-python-headless
 COPY embryo_ai/ ./embryo_ai/
 WORKDIR /app/embryo_ai
-CMD uvicorn main:app --host 0.0.0.0 --port $PORT
+CMD uvicorn main:app --host 0.0.0.0 --port 8000
