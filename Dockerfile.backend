@@ -4,7 +4,7 @@
 FROM python:3.11-slim-bookworm
 
 # System dependencies
-RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/* wget
 WORKDIR /app
 
 # Python dependencies
@@ -18,6 +18,9 @@ COPY embryo_ai/ ./embryo_ai/
 
 WORKDIR /app/embryo_ai
 
+# Download model weights from Hugging Face
+RUN wget -q https://huggingface.co/vikramsona02/EMprion-models/resolve/main/gardner_net_best.pth -O /app/embryo_ai/gardner_net_best.pth
+RUN wget -q https://huggingface.co/vikramsona02/EMprion-models/resolve/main/modelr3D18_bs16_trlen10_cv1_best_epoch15 -O /app/embryo_ai/modelr3D18_bs16_trlen10_cv1_best_epoch15
+
 # Start application
-# We use a shell command to ensure download_models runs before the app starts
-CMD python download_models.py && python main.py
+CMD python main.py
