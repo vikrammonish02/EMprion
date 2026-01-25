@@ -1,3 +1,4 @@
+import sys
 import os
 import uvicorn
 import asyncio
@@ -7,6 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 
+# Ensure the current directory is in the path for imports
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.append(current_dir)
+
 # Global service instance (lazy loaded in background)
 ai_service = None
 ALLOW_SIMULATION = os.environ.get("ALLOW_SIMULATION", "false").lower() == "true"
@@ -14,32 +20,39 @@ ALLOW_SIMULATION = os.environ.get("ALLOW_SIMULATION", "false").lower() == "true"
 async def load_ai_service_task():
     global ai_service
     try:
-        print("🧬 Background: Loading AI Service...")
-        # Give the server a moment to settle
-        await asyncio.sleep(2)
+        print("🧬 [Service Loader] Starting...")
+        # Give the server a moment to settle and pass health checks
+        await asyncio.sleep(5) 
+        
+        print("🧬 [Service Loader] Importing AI modules...")
         from service import ai_service as loaded_service
         ai_service = loaded_service
+        
         if ai_service:
-            print("✅ Background: AI Service loaded successfully")
+            print("✅ [Service Loader] AI Service loaded successfully")
         else:
-            print("⚠️ Background: AI Service initialized as None (Simulation fallback active)")
+            print("⚠️ [Service Loader] AI Service returned None (falling back to simulation)")
     except Exception as e:
-        print(f"❌ Background: Error during service initialization: {e}")
+        print(f"❌ [Service Loader] CRITICAL FAILURE: {e}")
+        import traceback
+        traceback.print_exc()
         ai_service = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup logic
-    print("🚀 Backend Process Starting...")
-    print(f"📊 Mode: {'Simulation' if ALLOW_SIMULATION else 'Production'}")
+    print("--- BACKEND LIFECYCLE START ---")
+    print(f"🌍 PID: {os.getpid()}")
+    print(f"📊 Simulation Mode Allowed: {ALLOW_SIMULATION}")
     
-    # Start loading task in the background
-    asyncio.create_task(load_ai_service_task())
+    # Start loading task in the background (fire and forget)
+    loop = asyncio.get_event_loop()
+    loop.create_task(load_ai_service_task())
     
-    print("✅ Main Loop Ready (Models loading in background)")
+    print("✅ Web Server is UP (Service initializing in background)")
     yield
     # Shutdown logic
-    print("👋 Backend shutting down...")
+    print("--- BACKEND LIFECYCLE END ---")
 
 app = FastAPI(
     title="EMprion AI Brain", 
