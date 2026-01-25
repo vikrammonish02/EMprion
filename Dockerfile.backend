@@ -1,23 +1,6 @@
-# Subhag EMBRION - Backend Dockerfile
-# AI inference server with PyTorch and CLIP
-
 FROM python:3.11-slim-bookworm
-
-# System dependencies
-RUN apt-get update && apt-get install -y ffmpeg wget && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
-# Python dependencies
-COPY embryo_ai/requirements.txt .
-RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
-RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir transformers pillow python-multipart email-validator
-
-# Copy application code
+RUN pip install --no-cache-dir fastapi uvicorn python-multipart pydantic
 COPY embryo_ai/ ./embryo_ai/
-
-# application code already copied to /app/embryo_ai
 WORKDIR /app/embryo_ai
-
-# Start application
-CMD ["python", "main.py"]
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT
