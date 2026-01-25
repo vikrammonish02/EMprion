@@ -88,9 +88,9 @@ const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos
                         {/* Overlays */}
                         <div className="p-8 bg-gray-900/40 backdrop-blur-3xl border-t border-white/10 grid grid-cols-3 gap-6 relative z-20">
                             {[
-                                { label: 'Cell Count', val: embryo.gardner.cell_count || '120+' },
-                                { label: 'Cavity Symm.', val: embryo.gardner.cavity_symmetry || '98%' },
-                                { label: 'Fragmentation', val: embryo.gardner.fragmentation || '<5%' }
+                                { label: 'Cell Count', val: embryo.gardner.cell_count || '--' },
+                                { label: 'Cavity Symm.', val: embryo.gardner.cavity_symmetry || '--' },
+                                { label: 'Fragmentation', val: embryo.gardner.fragmentation || '--' }
                             ].map(kpi => (
                                 <div key={kpi.label} className="space-y-1">
                                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">{kpi.label}</p>
@@ -203,7 +203,7 @@ const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos
                             <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">AI Decision Path</h4>
                         </div>
                         <p className="text-sm text-gray-500 leading-relaxed font-medium italic">
-                            "{embryo.commentary || `AI detected synchronous cleavage windows with ${embryo.confidence > 90 ? 'optimal' : 'stable'} developmental kinetics. Morphology consistent with Grade ${embryo.gardner.expansion}${embryo.gardner.icm}${embryo.gardner.te} standard.`}"
+                            "{embryo.commentary || 'Analysis details pending neural verification.'}"
                         </p>
                     </div>
                 </div>

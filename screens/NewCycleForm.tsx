@@ -154,9 +154,9 @@ const NewCycleForm: React.FC<NewCycleFormProps> = ({ patients, onAddPatient, onA
         displayId: `AI-${analyzedFiles[0].name.split('.')[0]}`,
         cycleId: 'cyc1', // Mock cycle ID
         gardner: {
-          expansion: parseInt(analyzedFiles[0].result?.gardner?.expansion) || 4,
-          icm: (analyzedFiles[0].result?.gardner?.icm as 'A' | 'B' | 'C') || 'A',
-          te: (analyzedFiles[0].result?.gardner?.te as 'A' | 'B' | 'C') || 'A',
+          expansion: parseInt(analyzedFiles[0].result?.gardner?.expansion) || 0,
+          icm: (analyzedFiles[0].result?.gardner?.icm as 'A' | 'B' | 'C') || '--',
+          te: (analyzedFiles[0].result?.gardner?.te as 'A' | 'B' | 'C') || '--',
           cell_count: analyzedFiles[0].result?.gardner?.cell_count || '--',
           cavity_symmetry: analyzedFiles[0].result?.gardner?.cavity_symmetry || '--',
           fragmentation: analyzedFiles[0].result?.gardner?.fragmentation || '--'
@@ -169,12 +169,12 @@ const NewCycleForm: React.FC<NewCycleFormProps> = ({ patients, onAddPatient, onA
           tEB: parseFloat(analyzedFiles[0].result.milestones.tEB) || parseFloat(analyzedFiles[0].result.milestones.tB),
           s3: parseFloat(analyzedFiles[0].result.milestones.s3),
         } : undefined,
-        viabilityIndex: parseInt(analyzedFiles[0].result?.confidence?.replace('%', '')) || 85,
+        viabilityIndex: parseInt(analyzedFiles[0].result?.confidence?.replace('%', '')) || 0,
         status: 'COMPLETED' as const,
         assetType: analyzedFiles[0].result?.analysis_type === 'morphokinetics' ? 'VIDEO' as const : 'IMAGE' as const,
         analysisModel: analyzedFiles[0].result?.analysis_type === 'morphokinetics' ? 'MORPHOKINETICS' as const : 'GARDNER' as const,
         confidence: (() => {
-          const val = parseFloat(analyzedFiles[0].result?.confidence || '90');
+          const val = parseFloat(analyzedFiles[0].result?.confidence || '0');
           return val <= 1 ? val * 100 : val;
         })(),
         file: analyzedFiles[0].file,

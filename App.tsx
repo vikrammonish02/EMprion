@@ -71,7 +71,7 @@ const App: React.FC = () => {
           <div className="p-4 md:p-10 max-w-[1600px] mx-auto min-h-full flex flex-col">
             <Routes>
               {/* New Stitch Routes */}
-              <Route path="/" element={<StitchDashboard cycles={activeCycles} patients={patients} />} />
+              <Route path="/" element={<StitchDashboard cycles={activeCycles} patients={patients} embryos={activeEmbryos} />} />
               <Route path="/patients" element={<StitchPatientsList patients={patients} onDeletePatient={deletePatient} />} />
               <Route path="/patient/:id" element={<StitchPatientDetail patients={patients} cycles={activeCycles} embryos={activeEmbryos} />} />
               <Route path="/cycle/:id" element={<StitchCycleDetail cycles={activeCycles} patients={patients} embryos={activeEmbryos} onAddEmbryos={addEmbryos} />} />

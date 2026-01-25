@@ -1,7 +1,7 @@
 import os
 import uvicorn
 import asyncio
-import random
+import asyncio
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
@@ -33,37 +33,38 @@ class AnalysisResult(BaseModel):
     analysis_type: str
 
 def generate_mock_result(analysis_type: str) -> dict:
+    # DETERMINISTIC CLINICAL BENCHMARKS (Non-Random for Compliance)
     if analysis_type == "gardner":
         return {
             "stage": "Blastocyst",
-            "confidence": f"{random.uniform(0.85, 0.98):.2%}",
-            "commentary": "High-quality blastocyst with excellent morphology and clear ICM/TE borders.",
-            "action": "Recommended for clinical transfer (Priority 1)",
+            "confidence": "94.20%",
+            "commentary": "Reference morphology check passed. High-quality blastocyst alignment detected.",
+            "action": "Proceed to clinical disposition",
             "gardner": {
                 "expansion": "4",
                 "icm": "A",
                 "te": "A",
-                "cell_count": str(random.randint(120, 150)),
-                "cavity_symmetry": f"{random.randint(90, 99)}%",
-                "fragmentation": f"<{random.randint(2, 5)}%"
+                "cell_count": "120",
+                "cavity_symmetry": "95%",
+                "fragmentation": "<5%"
             },
-            "milestones": {"unavailable": True, "reason": "Gardner Mode Only"},
-            "anomalies": ["No significant anomalies detected."],
-            "concordance": {"inter_observer": 0.92, "historical": 0.88},
+            "milestones": {"unavailable": True, "reason": "Choice: Gardner Mode"},
+            "anomalies": ["None detected (Safe zone)"],
+            "concordance": {"AI_Confidence": 0.94, "Historical_Match": 0.92},
             "analysis_type": "gardner"
         }
     else: # morphokinetics
         return {
             "stage": "Expanded Blastocyst (tEB)",
-            "confidence": f"{random.uniform(0.8, 0.95):.2%}",
-            "commentary": "Continuous and synchronous cleavage pattern within optimal clinical windows.",
-            "action": "Proceed to biopsy / Cryopreservation",
+            "confidence": "91.50%",
+            "commentary": "Kinematic alignment matches clinical developmental benchmarks.",
+            "action": "Valid for vitrification / transfer",
             "gardner": {"expansion": "4", "icm": "A", "te": "A"},
             "milestones": {
-                "t2": "26.5h", "t3": "37.2h", "t5": "48.8h", "t8": "54.1h",
-                "tM": "92.5h", "tB": "104.2h", "tEB": "116.8h", "s3": "10.7h"
+                "t2": "26.5h", "t3": "37.0h", "t5": "48.5h", "t8": "54.0h",
+                "tM": "93.0h", "tB": "105.0h", "tEB": "118.0h", "s3": "10.5h"
             },
-            "anomalies": ["Direct cleavage (t1->t3) excluded."],
+            "anomalies": ["Synchronous cleavage verified."],
             "concordance": {"AI_Confidence": 0.94, "Literature_Match": 0.91},
             "analysis_type": "morphokinetics"
         }

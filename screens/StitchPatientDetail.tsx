@@ -77,44 +77,51 @@ const StitchPatientDetail: React.FC<StitchPatientDetailProps> = ({ patients, cyc
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {patientCycles.map(c => (
-                        <div
-                            key={c.id}
-                            onClick={() => navigate(`/cycle/${c.id}`)}
-                            className="group bg-white border border-gray-100 rounded-[40px] p-10 hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] transition-all duration-700 cursor-pointer hover:-translate-y-2 relative overflow-hidden"
-                        >
-                            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <div className="w-32 h-32 bg-emerald-500 rounded-full"></div>
+                    {patientCycles.map(c => {
+                        const cycleEmbryosList = embryos.filter(e => e.cycleId === c.id);
+                        const cycleAvgConfidence = cycleEmbryosList.length > 0
+                            ? Math.round(cycleEmbryosList.reduce((acc, e) => acc + (e.confidence || 0), 0) / cycleEmbryosList.length)
+                            : 0;
+
+                        return (
+                            <div
+                                key={c.id}
+                                onClick={() => navigate(`/cycle/${c.id}`)}
+                                className="group bg-white border border-gray-100 rounded-[40px] p-10 hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] transition-all duration-700 cursor-pointer hover:-translate-y-2 relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                                    <div className="w-32 h-32 bg-emerald-500 rounded-full"></div>
+                                </div>
+
+                                <div className="relative z-10 space-y-8">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.25em] mb-1">Retrieval Group</p>
+                                            <h4 className="text-2xl font-black text-gray-900">{c.eggRetrievalDate}</h4>
+                                        </div>
+                                        <span className="px-4 py-1.5 bg-gray-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest">{c.status}</span>
+                                    </div>
+
+                                    <div className="flex bg-gray-50/50 p-6 rounded-[24px] border border-gray-100/30 gap-8">
+                                        <div>
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Volume</p>
+                                            <p className="text-xl font-black text-gray-900 mono">{c.embryoCount}</p>
+                                        </div>
+                                        <div className="w-px bg-gray-200"></div>
+                                        <div>
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Confidence</p>
+                                            <p className="text-xl font-black text-emerald-600 mono">{cycleAvgConfidence > 0 ? `${cycleAvgConfidence}%` : 'N/A'}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 text-[#1B7B6A] font-black text-[10px] uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform">
+                                        Enter Lifecycle View
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                                    </div>
+                                </div>
                             </div>
-
-                            <div className="relative z-10 space-y-8">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.25em] mb-1">Retrieval Group</p>
-                                        <h4 className="text-2xl font-black text-gray-900">{c.eggRetrievalDate}</h4>
-                                    </div>
-                                    <span className="px-4 py-1.5 bg-gray-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest">{c.status}</span>
-                                </div>
-
-                                <div className="flex bg-gray-50/50 p-6 rounded-[24px] border border-gray-100/30 gap-8">
-                                    <div>
-                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Volume</p>
-                                        <p className="text-xl font-black text-gray-900 mono">{c.embryoCount}</p>
-                                    </div>
-                                    <div className="w-px bg-gray-200"></div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Confidence</p>
-                                        <p className="text-xl font-black text-emerald-600 mono">88%</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2 text-[#1B7B6A] font-black text-[10px] uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform">
-                                    Enter Lifecycle View
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                     {patientCycles.length === 0 && (
                         <div className="col-span-full p-24 text-center bg-gray-50 rounded-[48px] border-2 border-dashed border-gray-100 font-bold text-gray-300 uppercase tracking-widest">
                             No Active Lifecycle Cycles Logged
