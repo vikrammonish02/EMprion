@@ -5,9 +5,11 @@ import { Disposition, Embryo } from '../types';
 
 interface StitchAssessmentDetailProps {
     embryos: Embryo[];
+    patients: Patient[];
+    cycles: Cycle[];
 }
 
-const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos: embryosProp }) => {
+const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos: embryosProp, patients, cycles }) => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const location = useLocation();
@@ -16,6 +18,9 @@ const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos
     const embryo = useMemo(() => {
         return (location.state as any)?.embryo || (embryosProp || MOCK_EMBRYOS).find(e => e.id === id);
     }, [id, location.state, embryosProp]);
+
+    const cycle = cycles.find(c => c.id === embryo?.cycleId);
+    const patient = patients.find(p => p.id === cycle?.patientId);
 
     const mediaUrl = useMemo(() => {
         if (embryo?.file) {
@@ -38,18 +43,25 @@ const StitchAssessmentDetail: React.FC<StitchAssessmentDetailProps> = ({ embryos
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                         Back to Cohort
                     </button>
-                    <div className="flex items-center gap-4 mt-2">
+                    <div className="flex flex-col md:flex-row md:items-center gap-4 mt-2">
                         <h2 className="text-4xl font-black text-gray-900 tracking-tight">AI Assessment</h2>
-                        <div className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] border border-blue-100">
-                            {embryo.assetType} ASSET
+                        <div className="flex gap-2">
+                            <div className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] border border-blue-100">
+                                {embryo.assetType} ASSET
+                            </div>
+                            <div className="bg-[#1B7B6A]/5 text-[#1B7B6A] px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] border border-[#1B7B6A]/10 italic">
+                                {cycle?.displayId || 'SEG-00'}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="text-right hidden md:block">
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Protocol ID</p>
-                        <p className="text-sm font-black text-gray-900 mono uppercase">{embryo.id.slice(-8)}</p>
+                <div className="flex items-center gap-6">
+                    <div className="text-right hidden sm:block">
+                        <p className="text-[10px] font-black text-[#1B7B6A] uppercase tracking-widest mb-1">Clinical Context</p>
+                        <p className="text-lg font-black text-gray-900 tracking-tighter leading-none">{patient?.partner1.name || 'Anonymous'}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{patient?.displayId || 'MRN-PENDING'}</p>
                     </div>
+                    <div className="w-[1px] h-10 bg-gray-100 hidden sm:block"></div>
                     <button className="px-6 py-3 bg-gray-900 text-white rounded-xl font-bold hover:shadow-xl transition-all active:scale-95 text-sm">Download Lab Report</button>
                 </div>
             </div>

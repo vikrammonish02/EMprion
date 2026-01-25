@@ -74,9 +74,9 @@ const App: React.FC = () => {
               <Route path="/" element={<StitchDashboard cycles={activeCycles} patients={patients} />} />
               <Route path="/patients" element={<StitchPatientsList patients={patients} onDeletePatient={deletePatient} />} />
               <Route path="/patient/:id" element={<StitchPatientDetail patients={patients} cycles={activeCycles} embryos={activeEmbryos} />} />
-              <Route path="/cycle/:id" element={<StitchCycleDetail cycles={activeCycles} embryos={activeEmbryos} onAddEmbryos={addEmbryos} />} />
+              <Route path="/cycle/:id" element={<StitchCycleDetail cycles={activeCycles} patients={patients} embryos={activeEmbryos} onAddEmbryos={addEmbryos} />} />
               <Route path="/assessment" element={<StitchAssessmentOverview embryos={activeEmbryos} cycles={activeCycles} />} />
-              <Route path="/embryo/:id" element={<StitchAssessmentDetail embryos={activeEmbryos} />} />
+              <Route path="/embryo/:id" element={<StitchAssessmentDetail embryos={activeEmbryos} patients={patients} cycles={activeCycles} />} />
               <Route
                 path="/new-cycle"
                 element={

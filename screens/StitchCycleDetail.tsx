@@ -6,17 +6,19 @@ import { analyzeEmbryo } from '../api';
 
 interface StitchCycleDetailProps {
     cycles: Cycle[];
+    patients: Patient[];
     embryos: Embryo[];
     onAddEmbryos: (embryos: Embryo[]) => void;
 }
 
-const StitchCycleDetail: React.FC<StitchCycleDetailProps> = ({ cycles, embryos: allEmbryos, onAddEmbryos }) => {
+const StitchCycleDetail: React.FC<StitchCycleDetailProps> = ({ cycles, patients, embryos: allEmbryos, onAddEmbryos }) => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const cycle = cycles.find(c => c.id === id);
+    const patient = patients.find(p => p.id === cycle?.patientId);
     const cycleEmbryos = allEmbryos.filter(e => e.cycleId === id);
 
     if (!cycle) return <div className="p-20 text-center font-bold text-gray-400 uppercase tracking-[0.3em]">Lifecycle Data Unavailable</div>;
@@ -38,7 +40,7 @@ const StitchCycleDetail: React.FC<StitchCycleDetailProps> = ({ cycles, embryos: 
                         </button>
                         <div>
                             <p className="text-emerald-200 text-xs font-black uppercase tracking-[0.3em] mb-1">Active Case Context</p>
-                            <h2 className="text-4xl font-black text-white tracking-tight leading-none">Rakesh Patel <span className="text-emerald-300/50 font-medium">/ MRN-2024-001</span></h2>
+                            <h2 className="text-4xl font-black text-white tracking-tight leading-none">{patient?.partner1.name || 'Unknown Patient'} <span className="text-emerald-300/50 font-medium">/ {patient?.displayId || 'MRN-PENDING'}</span></h2>
                         </div>
                     </div>
 
