@@ -50,6 +50,5 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
     }
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    print(f"📡 BAREBONES: Binding to 0.0.0.0:{port}")
-    uvicorn.run(app, host="0.0.0.0", port=port, access_log=True)
+    print(f"📡 BAREBONES: Binding to 0.0.0.0:8000")
+    uvicorn.run(app, host="0.0.0.0", port=8000, access_log=True)
