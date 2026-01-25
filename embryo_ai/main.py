@@ -172,6 +172,11 @@ async def predict_test(analysis_type: str = "gardner"):
     """Diagnostic endpoint to test simulation without file upload."""
     return generate_mock_result(analysis_type)
 
+@app.post("/api/predict_json")
+async def predict_json(data: dict):
+    """Diagnostic endpoint to test POST without multipart."""
+    return {"received": data, "mock": generate_mock_result("gardner")}
+
 @app.post("/api/predict", response_model=AnalysisResult)
 async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
     """
