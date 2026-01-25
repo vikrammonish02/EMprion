@@ -1,23 +1,47 @@
+import os
+import uvicorn
+import asyncio
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-import uvicorn
-import os
 
-# Try to import AI service - may fail if models not loaded
-try:
-    from service import ai_service
-    print("AI Service loaded successfully")
-except Exception as e:
-    print(f"WARNING: AI Service failed to load: {e}")
-    ai_service = None
-
+# Global service instance (lazy loaded)
+ai_service = None
 ALLOW_SIMULATION = os.environ.get("ALLOW_SIMULATION", "false").lower() == "true"
 
-app = FastAPI(title="EMprion AI Brain", description="Regulatory Embryo Grading Service")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup logic
+    global ai_service
+    print("🚀 Backend starting up...")
+    print(f"📊 Mode: {'Simulation' if ALLOW_SIMULATION else 'Production'}")
+    
+    # Load AI service in the background or at start
+    try:
+        print("🧬 Loading AI Service (this may take a moment)...")
+        from service import ai_service as loaded_service
+        ai_service = loaded_service
+        if ai_service:
+            print("✅ AI Service loaded successfully")
+        else:
+            print("⚠️ AI Service initialized as None (Simulation fallback available)")
+    except Exception as e:
+        print(f"❌ CRITICAL error during service initialization: {e}")
+        ai_service = None
+    
+    yield
+    # Shutdown logic
+    print("👋 Backend shutting down...")
 
-# ... (CORS middleware stays the same)
+app = FastAPI(
+    title="EMprion AI Brain", 
+    description="Regulatory Embryo Grading Service",
+    lifespan=lifespan
+)
+
+# Enable CORS for the React frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -85,7 +109,12 @@ def generate_mock_result(analysis_type: str) -> dict:
 async def root():
     status = "online" if (ai_service or ALLOW_SIMULATION) else "degraded"
     mode = "Simulation" if (not ai_service and ALLOW_SIMULATION) else "Production"
-    return {"status": status, "model": "Subhag Embryon v3", "mode": mode}
+    return {
+        "status": status, 
+        "model": "Subhag Embryon v3", 
+        "mode": mode,
+        "service_initialized": ai_service is not None
+    }
 
 @app.post("/api/predict", response_model=AnalysisResult)
 async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
@@ -94,8 +123,7 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
     """
     if ai_service is None:
         if ALLOW_SIMULATION:
-            import asyncio
-            await asyncio.sleep(1.5) # Simulate processing time
+            await asyncio.sleep(1.0) # Brief simulation delay
             return generate_mock_result(analysis_type)
         else:
             raise HTTPException(status_code=503, detail="AI Engine not initialized. (Models missing and Simulation disabled)")
@@ -103,7 +131,6 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
     content = await file.read()
     
     try:
-        # ... (rest of the original predict logic)
         if analysis_type == "gardner":
             result = ai_service.predict_gardner(content)
         elif analysis_type == "morphokinetics":
@@ -119,5 +146,7 @@ async def predict(file: UploadFile = File(...), analysis_type: str = "gardner"):
         raise HTTPException(status_code=500, detail=f"Inference error: {str(e)}")
 
 if __name__ == "__main__":
+    # Railway passes the port as an environment variable
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    print(f"📡 Starting server on port {port}...")
+    uvicorn.run("main:app", host="0.0.0.0", port=port, log_level="info")
