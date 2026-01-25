@@ -111,4 +111,4 @@ If models are private, contact vikram@subhag.in.
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
