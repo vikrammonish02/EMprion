@@ -52,7 +52,7 @@ const PatientRegistrationWizard: React.FC<PatientRegistrationWizardProps> = ({ o
     };
 
     return (
-        <div className="flex flex-col h-full font-sans">
+        <div className="flex flex-col min-h-[700px] font-sans bg-white rounded-[32px] overflow-hidden shadow-2xl border border-gray-100">
             {/* Wizard Navigation Info */}
             <div className="px-8 py-3 bg-white border-b border-gray-100 flex gap-4 overflow-x-auto no-scrollbar">
                 {['Demographics', 'Clinical Indicators', 'Donor & Staff', 'Consent & Privacy', 'Final Review'].map((label, idx) => (
@@ -69,7 +69,7 @@ const PatientRegistrationWizard: React.FC<PatientRegistrationWizardProps> = ({ o
             </div>
 
             {/* Wizard Content */}
-            <div className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar bg-white">
+            <div className="flex-1 p-10 space-y-8 bg-white">
                 {modalStep === 1 && (
                     <div className="space-y-10 animate-in slide-in-from-right-4 duration-300">
                         {/* Partner 1 */}

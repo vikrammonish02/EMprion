@@ -16,6 +16,8 @@ import StitchDashboard from './screens/StitchDashboard';
 import StitchAssessmentDetail from './screens/StitchAssessmentDetail';
 import StitchCycleDetail from './screens/StitchCycleDetail';
 import StitchPatientsList from './screens/StitchPatientsList';
+import StitchPatientDetail from './screens/StitchPatientDetail';
+import StitchAssessmentOverview from './screens/StitchAssessmentOverview';
 import { MOCK_CYCLES, MOCK_PATIENTS, MOCK_EMBRYOS } from './constants';
 import { Cycle, Patient, Embryo } from './types';
 
@@ -62,40 +64,34 @@ const App: React.FC = () => {
     <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
       <StitchSidebar isOpen={sidebarOpen} toggle={() => setSidebarOpen(!sidebarOpen)} />
 
-      <div className="flex-1 flex flex-col min-w-0 h-full">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 h-screen">
         <StitchHeader onToggleSidebar={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-10 custom-scrollbar">
-          <Routes>
-            {/* New Stitch Routes */}
-            <Route path="/" element={<StitchDashboard cycles={activeCycles} patients={patients} />} />
-            <Route path="/patients" element={<StitchPatientsList patients={patients} onDeletePatient={deletePatient} />} />
-            <Route path="/cycle/:id" element={<StitchCycleDetail cycles={activeCycles} embryos={activeEmbryos} onAddEmbryos={addEmbryos} />} />
-            <Route path="/embryo/:id" element={<StitchAssessmentDetail embryos={activeEmbryos} />} />
-
-            {/* Legacy/Other Routes */}
-            <Route path="/legacy-dashboard" element={<DashboardHome cycles={activeCycles} patients={patients} />} />
-            <Route path="/legacy-patients" element={<PatientsList patients={patients} onDeletePatient={deletePatient} />} />
-            <Route path="/legacy-cycle/:id" element={<CycleDetail cycles={activeCycles} embryos={activeEmbryos} onAddEmbryos={addEmbryos} />} />
-            <Route path="/legacy-embryo/:id" element={<AssessmentDetail embryos={activeEmbryos} />} />
-
-            <Route path="/new-patient" element={<NewPatientForm onAddPatient={addPatient} />} />
-            <Route path="/patient/:id" element={<PatientDetail patients={patients} cycles={activeCycles} embryos={activeEmbryos} />} />
-            <Route path="/assessment" element={<AssessmentOverview embryos={activeEmbryos} cycles={activeCycles} />} />
-            <Route
-              path="/new-cycle"
-              element={
-                <NewCycleForm
-                  patients={patients}
-                  onAddPatient={addPatient}
-                  onAddCycle={addCycle}
-                  onAddEmbryos={addEmbryos}
-                />
-              }
-            />
-            <Route path="/reports" element={<ReportsDashboard />} />
-            <Route path="*" element={<div className="text-center mt-20 text-gray-400 font-black uppercase tracking-widest">Section Under Neural Development</div>} />
-          </Routes>
+        <main className="flex-1 overflow-y-auto scroll-smooth">
+          <div className="p-4 md:p-10 max-w-[1600px] mx-auto min-h-full flex flex-col">
+            <Routes>
+              {/* New Stitch Routes */}
+              <Route path="/" element={<StitchDashboard cycles={activeCycles} patients={patients} />} />
+              <Route path="/patients" element={<StitchPatientsList patients={patients} onDeletePatient={deletePatient} />} />
+              <Route path="/patient/:id" element={<StitchPatientDetail patients={patients} cycles={activeCycles} embryos={activeEmbryos} />} />
+              <Route path="/cycle/:id" element={<StitchCycleDetail cycles={activeCycles} embryos={activeEmbryos} onAddEmbryos={addEmbryos} />} />
+              <Route path="/assessment" element={<StitchAssessmentOverview embryos={activeEmbryos} cycles={activeCycles} />} />
+              <Route path="/embryo/:id" element={<StitchAssessmentDetail embryos={activeEmbryos} />} />
+              <Route
+                path="/new-cycle"
+                element={
+                  <NewCycleForm
+                    patients={patients}
+                    onAddPatient={addPatient}
+                    onAddCycle={addCycle}
+                    onAddEmbryos={addEmbryos}
+                  />
+                }
+              />
+              <Route path="/reports" element={<ReportsDashboard />} />
+              <Route path="*" element={<div className="text-center mt-20 text-gray-400 font-black uppercase tracking-widest">Section Under Neural Development</div>} />
+            </Routes>
+          </div>
         </main>
       </div>
     </div>

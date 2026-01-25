@@ -11,10 +11,10 @@ const StitchDashboard: React.FC<StitchDashboardProps> = ({ cycles, patients }) =
     const navigate = useNavigate();
 
     const metrics = [
-        { label: 'Active Projects', value: cycles.length, icon: '⚡', highlight: false },
-        { label: 'Review Required', value: cycles.filter(c => c.status === 'ASSESSMENT').length, icon: '⏳', highlight: true },
-        { label: 'Avg Viability', value: '74%', icon: '📈', highlight: false },
-        { label: 'Total Embryos', value: cycles.reduce((acc, c) => acc + (c.embryoCount || 0), 0), icon: '🧬', highlight: false },
+        { label: 'Active Projects', value: cycles.length, icon: '⚡', highlight: false, path: '/' },
+        { label: 'Review Required', value: cycles.filter(c => c.status === 'ASSESSMENT').length, icon: '⏳', highlight: true, path: '/assessment' },
+        { label: 'Avg Viability', value: '74%', icon: '📈', highlight: false, path: '/reports' },
+        { label: 'Total Embryos', value: cycles.reduce((acc, c) => acc + (c.embryoCount || 0), 0), icon: '🧬', highlight: false, path: '/patients' },
     ];
 
     return (
@@ -47,7 +47,8 @@ const StitchDashboard: React.FC<StitchDashboardProps> = ({ cycles, patients }) =
                 {metrics.map((m) => (
                     <div
                         key={m.label}
-                        className={`relative group overflow-hidden bg-white/70 backdrop-blur-xl p-8 rounded-[32px] border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] transition-all duration-500 hover:-translate-y-2`}
+                        onClick={() => navigate(m.path)}
+                        className={`relative group overflow-hidden bg-white/70 backdrop-blur-xl p-8 rounded-[32px] border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] transition-all duration-500 hover:-translate-y-2 cursor-pointer`}
                     >
                         {/* Background Glow */}
                         <div className={`absolute -right-8 -top-8 w-24 h-24 blur-3xl opacity-20 transition-opacity group-hover:opacity-40 rounded-full ${m.highlight ? 'bg-amber-400' : 'bg-[#1B7B6A]'}`}></div>
