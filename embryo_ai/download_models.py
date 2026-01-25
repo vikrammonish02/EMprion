@@ -150,4 +150,4 @@ If models are private, ensure HUGGINGFACE_TOKEN is set.
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
